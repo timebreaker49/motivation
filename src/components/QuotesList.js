@@ -33,7 +33,6 @@ const QuotesList = props => {
   const getQuotes = () => {
     db.listQuotes()
       .then(data => {
-        console.log('Just got quotes! ' + data);
         setQuotes(data);
         setLoading(false);
       })

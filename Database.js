@@ -26,6 +26,13 @@ export default class Database {
                 );
                 resolve(db);
               });
+              db.transaction(tx => {
+                tx.executeSql(
+                  'CREATE TABLE IF NOT EXISTS QuoteGroup (groupId INTEGER PRIMARY KEY AUTOINCREMENT, groupName)',
+                  [],
+                );
+                resolve(db);
+              });
             })
             .catch(error => {
               console.log('Error caught: ', error);
@@ -39,6 +46,41 @@ export default class Database {
         });
     });
   }
+
+  // new call for retrieve quote groups
+  getQuoteGroups() {
+    return new Promise(resolve => {
+      const groups = [];
+      this.initDB()
+        .then(db => {
+          db.transaction(tx => {
+            tx.executeSql(
+              'SELECT qg.groupId, qg.groupName FROM QuoteGroup qg',
+              [],
+            ).then(([tx, results]) => {
+              console.log('SQL executed');
+              for (let i = 0; i < results.rows.length; i++) {
+                let row = results.rows.item(i);
+                console.log(
+                  'groupId: ' + row.groupId + ' , groupName: ' + row.groupName,
+                );
+                const {groupId, groupName} = row;
+                groups.push({groupId, groupName});
+              }
+              resolve(groups);
+            });
+          })
+            .then(() => this.closeDatabase(db))
+            .catch(error => {
+              console.log('Error with quote group' + error);
+            });
+        })
+        .catch(error => {
+          console.log('Error! ' + error);
+        });
+    });
+  }
+
   closeDatabase(db) {
     if (db) {
       console.log('Closing database');

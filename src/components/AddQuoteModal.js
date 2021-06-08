@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   TextInput,
@@ -14,26 +14,41 @@ import * as yup from 'yup';
 
 let db = new Database();
 
-const K_OPTIONS = [
-  {
-    item: 'motivation',
-    id: '1',
-  },
-  {
-    item: 'perspective',
-    id: '2',
-  },
-];
-
 const AddQuoteModal = props => {
+  const [groups, setGroups] = useState([]);
+  const [listRefresh, setListRefresh] = useState(false);
+  const [selectedVals, setSelectedVals] = useState([]);
+
+  useEffect(() => {
+    console.log('useEffect! ');
+    getQuoteGroups();
+  }, [listRefresh]);
+
+  const getQuoteGroups = () => {
+    db.getQuoteGroups()
+      .then(data => {
+        console.log('data retrieved!');
+        let qg = [];
+        Object.keys(data).forEach(key => {
+          let row = {};
+          row.item = data[key].groupName;
+          row.id = data[key].groupId;
+          qg.push(row);
+        });
+        setGroups(qg);
+        console.log('groups' + groups);
+      })
+      .then(error => {
+        console.log('getQuoteGroups error ' + error);
+      });
+  };
+
   const quoteFormSchema = yup.object().shape({
     quoteText: yup.string().required("Don't forget to enter the quote!"),
     source: yup
       .string()
       .required('Where did you hear this quote / who said it?'),
   });
-
-  const [selectedVals, setSelectedVals] = useState([]);
 
   const saveQuote = values => {
     console.log(values);
@@ -109,7 +124,7 @@ const AddQuoteModal = props => {
             <View style={styles.textInput}>
               <SelectBox
                 label="Select tags"
-                options={K_OPTIONS}
+                options={groups}
                 selectedValues={selectedVals}
                 onMultiSelect={onMultiChange()}
                 onTapClose={onMultiChange()}
