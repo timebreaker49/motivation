@@ -13,7 +13,6 @@ const QuotesList = props => {
   ] = 'No quotes found!\nPlease tap add quote to add one!';
   const [visible, setVisible] = useState(false);
   const [id, setId] = useState('');
-  const [refresh, setRefresh] = useState(props.refresh);
 
   const onPress = quoteId => {
     setVisible(true);
@@ -28,7 +27,7 @@ const QuotesList = props => {
   useEffect(() => {
     console.log('props refresh in QL: ' + props.refresh);
     getQuotes();
-  }, [refresh]);
+  }, [props.refresh]);
 
   const getQuotes = () => {
     db.listQuotes()

@@ -52,10 +52,9 @@ const AddQuoteModal = props => {
 
   const saveQuote = values => {
     console.log(values);
-    let dummyType = '[1,2]';
     let data = {
       quoteText: values.quoteText,
-      quoteType: dummyType,
+      quoteType: JSON.stringify(values.type),
       quoteSource: values.source,
     };
     db.addQuote(data)
