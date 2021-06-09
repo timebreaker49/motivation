@@ -1,51 +1,39 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import {View, StyleSheet, Modal} from 'react-native';
 import {Button} from 'react-native-elements';
 import AddQuoteModal from './AddQuoteModal';
 
-class AddQuote extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      modalVisible: false,
-      buttonText: 'Add Quote',
-    };
-    this._toggleModal = this._toggleModal.bind(this);
-  }
-  _toggleModal() {
-    this.setState({modalVisible: !this.state.modalVisible});
-  }
+const AddQuote = props => {
+  const [modalVisible, setModalVisible] = useState(false);
 
-  closeDisplay = () => {
-    this.setState({modalVisible: false});
-    console.log('display closed, refresh: ' + this.props.refresh);
-    // this.getQuotes();
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
   };
 
-  render() {
-    return (
-      <View>
-        <Button
-          style={styles.button}
-          onPress={() => this._toggleModal()}
-          title="Add Quote"
-        />
-        {this.state.modalVisible ? (
-          <Modal animationType="slide" onRequestClose={this.closeDisplay}>
-            <View style={styles.formBox}>
-              <AddQuoteModal
-                modalVisible={this.state.modalVisible}
-                closeDisplay={this.closeDisplay}
-                setRefresh={this.props.setRefresh}
-                refresh={this.props.refresh}
-              />
-            </View>
-          </Modal>
-        ) : null}
-      </View>
-    );
-  }
-}
+  const closeDisplay = () => {
+    setModalVisible(false);
+    console.log('display closed, refresh: ' + props.refresh);
+  };
+
+  return (
+    <View>
+      <Button style={styles.button} onPress={toggleModal} title="Add Quote" />
+      {modalVisible ? (
+        <Modal animationType="slide" onRequestClose={closeDisplay}>
+          <View style={styles.formBox}>
+            <AddQuoteModal
+              modalVisible={modalVisible}
+              closeDisplay={closeDisplay}
+              setRefresh={props.setRefresh}
+              refresh={props.refresh}
+            />
+          </View>
+        </Modal>
+      ) : null}
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   formBox: {
     alignItems: 'center',
