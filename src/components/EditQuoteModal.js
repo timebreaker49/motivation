@@ -1,160 +1,141 @@
-import React, {useState} from 'react';
-import {View, TextInput, StyleSheet, ScrollView, Text} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet} from 'react-native';
 import {Button} from 'react-native-elements';
 import Database from '../../Database';
 import {Formik, Field} from 'formik';
-import * as yup from 'yup';
+// import * as yup from 'yup';
 import CustomTextInput from './CustomTextInput';
 
 let db = new Database();
 
-export default class EditQuote extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      id: this.props.quoteId,
-      text: '',
-      type: '',
-      source: '',
-    };
-  }
+const EditQuote = props => {
+  const [id, setId] = useState(props.quoteId);
+  const [text, setText] = useState('');
+  const [type, setType] = useState('');
+  const [source, setSource] = useState('');
 
-  componentDidMount() {
-    this.getQuote(this.props.quoteId);
-    console.log('Retrieving quote');
-  }
+  useEffect(() => {
+    getQuote(id);
+    console.log('Attempted to retrieve quote id: ' + id);
+  }, [id]);
 
-  getQuote(quoteId) {
+  const getQuote = quoteId => {
     db.quoteById(quoteId)
       .then(result => {
         console.log('quote retrieved: ' + result);
         let quote = result;
-        this.setState({
-          id: quote.quoteId,
-          text: quote.quoteText,
-          type: quote.quoteType,
-          source: quote.quoteSource,
-        });
-        console.log('quote text: ' + this.state.text);
+        setId(quote.quoteId);
+        setText(quote.quoteText);
+        setType(quote.quoteType);
+        setSource(quote.quoteSource);
+        console.log('quote text: ' + text);
       })
       .catch(error => {
         console.log('Error in quote retrieval: ' + error);
       });
-  }
+  };
 
-  render() {
-    const quoteFormSchema = yup.object().shape({
-      quoteText: yup.string().required("Don't forget to enter the quote!"),
-      type: yup.string().required('What type of quote is ?'),
-      source: yup
-        .string()
-        .required('Where did you hear this quote / who said it?'),
-    });
-
-    const updateQuote = values => {
-      console.log('Some values: ' + values);
-      console.log(
-        'text ' +
-          values.text +
-          'type' +
-          values.type +
-          'source ' +
-          values.source,
-      );
-      let data = {
-        quoteText: values.text,
-        quoteType: values.type,
-        quoteSource: values.source,
-      };
-      db.updateQuote(this.state.id, data)
-        .then(result => {
-          console.log('updateQuote: ' + result);
-        })
-        .catch(error => {
-          console.log('Error: ', error);
-          this.setState({
-            isLoading: false,
-          });
-        });
-      this.props.closeDisplay();
+  const updateQuote = values => {
+    console.log('Update values: ' + values);
+    let data = {
+      quoteText: values.text,
+      quoteType: values.type,
+      quoteSource: values.source,
     };
+    db.updateQuote(id, data)
+      .then(result => {
+        console.log('updateQuote: ' + result);
+      })
+      .catch(error => {
+        console.log('Error: ', error);
+      });
+  };
 
-    const deleteQuote = quoteId => {
-      db.deleteQuote(quoteId)
-        .then(result => {
-          console.log('deleted quote, ' + result);
-        })
-        .catch(error => {
-          console.log('Error deleting quote, ' + error);
-        });
-    };
+  // const quoteFormSchema = yup.object().shape({
+  //   quoteText: yup.string().required("Don't forget to enter the quote!"),
+  //   type: yup.string().required('What type of quote is ?'),
+  //   source: yup
+  //     .string()
+  //     .required('Where did you hear this quote / who said it?'),
+  // });
 
-    return (
-      <View style={styles.formInputContainer}>
-        <Formik
-          // validationSchema={quoteFormSchema} // To come back to
-          initialValues={{
-            text: this.state.text,
-            type: this.state.type,
-            source: this.state.source,
-          }}
-          enableReinitialize
-          onSubmit={values => {
-            updateQuote(values);
-          }}>
-          {({handleSubmit}) => (
-            <View>
-              <Field
-                component={CustomTextInput}
-                name="text"
-                style={styles.textInput}
-                multiline={true}
+  const deleteQuote = quoteId => {
+    db.deleteQuote(quoteId)
+      .then(result => {
+        console.log('deleted quote, ' + result);
+      })
+      .catch(error => {
+        console.log('Error deleting quote, ' + error);
+      });
+  };
+
+  return (
+    <View style={styles.formInputContainer}>
+      <Formik
+        // validationSchema={quoteFormSchema} // To come back to
+        initialValues={{
+          text: text,
+          type: type,
+          source: source,
+        }}
+        enableReinitialize
+        onSubmit={values => {
+          updateQuote(values);
+          props.closeDisplay();
+        }}>
+        {({handleSubmit}) => (
+          <View>
+            <Field
+              component={CustomTextInput}
+              name="text"
+              style={styles.textInput}
+              multiline={true}
+            />
+            <Field
+              component={CustomTextInput}
+              name="type"
+              style={styles.textInput}
+            />
+            <Field
+              component={CustomTextInput}
+              name="source"
+              style={styles.textInput}
+            />
+            <View style={styles.saveButton}>
+              <Button
+                title="Save"
+                onPress={handleSubmit}
+                // disabled={!isValid}
               />
-              <Field
-                component={CustomTextInput}
-                name="type"
-                style={styles.textInput}
-              />
-              <Field
-                component={CustomTextInput}
-                name="source"
-                style={styles.textInput}
-              />
-              <View style={styles.saveButton}>
-                <Button
-                  title="Save"
-                  onPress={handleSubmit}
-                  // disabled={!isValid}
-                />
-              </View>
-              <View style={styles.saveButton}>
-                <Button
-                  style={styles.button}
-                  large
-                  title="Delete"
-                  onPress={() => {
-                    deleteQuote(this.state.id);
-                    this.props.closeDisplay();
-                  }}
-                />
-              </View>
-              <View style={styles.saveButton}>
-                <Button
-                  style={styles.button}
-                  large
-                  title="Close"
-                  onPress={() => {
-                    this.props.closeDisplay();
-                  }}
-                />
-              </View>
             </View>
-          )}
-        </Formik>
-      </View>
-    );
-  }
-}
+            <View style={styles.saveButton}>
+              <Button
+                style={styles.button}
+                large
+                title="Delete"
+                onPress={() => {
+                  deleteQuote(id);
+                  props.closeDisplay();
+                }}
+              />
+            </View>
+            <View style={styles.saveButton}>
+              <Button
+                style={styles.button}
+                large
+                title="Close"
+                onPress={() => {
+                  props.closeDisplay();
+                }}
+              />
+            </View>
+          </View>
+        )}
+      </Formik>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   formInputContainer: {
     width: '85%',
@@ -186,3 +167,5 @@ const styles = StyleSheet.create({
     color: 'red',
   },
 });
+
+export default EditQuote;
