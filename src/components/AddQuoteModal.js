@@ -69,9 +69,9 @@ const AddQuoteModal = props => {
       });
   };
 
-  function onMultiChange() {
+  const onMultiChange = () => {
     return item => setSelectedVals(xorBy(selectedVals, [item], 'id'));
-  }
+  };
 
   return (
     <View style={styles.formInputContainer}>
@@ -130,9 +130,6 @@ const AddQuoteModal = props => {
                 isMulti
               />
             </View>
-            {/*{errors.type && touched.type && (*/}
-            {/*  <Text style={styles.errorText}>{errors.type}</Text>*/}
-            {/*)}*/}
             <View style={styles.buttonContainer}>
               <View>
                 <TouchableOpacity
