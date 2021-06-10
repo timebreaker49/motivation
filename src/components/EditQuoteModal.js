@@ -5,6 +5,8 @@ import Database from '../../Database';
 import {Formik, Field} from 'formik';
 // import * as yup from 'yup';
 import CustomTextInput from './CustomTextInput';
+import SelectBox from 'react-native-multi-selectbox';
+import {xorBy} from 'lodash/array';
 
 let db = new Database();
 
@@ -14,7 +16,11 @@ const EditQuote = props => {
   const [type, setType] = useState('');
   const [source, setSource] = useState('');
 
+  const [groups, setGroups] = useState([]); // quote groups to be selected
+  const [selectedVals, setSelectedVals] = useState([]); // holds selected values to be initially populated
+
   useEffect(() => {
+    getQuoteGroups();
     getQuote(id);
     console.log('Attempted to retrieve quote id: ' + id);
   }, [id]);
@@ -22,16 +28,31 @@ const EditQuote = props => {
   const getQuote = quoteId => {
     db.quoteById(quoteId)
       .then(result => {
-        console.log('quote retrieved: ' + result);
-        let quote = result;
-        setId(quote.quoteId);
-        setText(quote.quoteText);
-        setType(quote.quoteType);
-        setSource(quote.quoteSource);
-        console.log('quote text: ' + text);
+        console.log('quote retrieved successfully, id: ' + result.quoteId);
+        setId(result.quoteId);
+        setText(result.quoteText);
+        setSource(result.quoteSource);
+        setSelectedVals(JSON.parse(result.quoteType));
       })
       .catch(error => {
         console.log('Error in quote retrieval: ' + error);
+      });
+  };
+
+  const getQuoteGroups = () => {
+    db.getQuoteGroups()
+      .then(data => {
+        let qg = [];
+        Object.keys(data).forEach(key => {
+          let row = {};
+          row.item = data[key].groupName;
+          row.id = data[key].groupId;
+          qg.push(row);
+        });
+        setGroups(qg);
+      })
+      .then(error => {
+        console.log('getQuoteGroups error ' + error);
       });
   };
 
@@ -39,7 +60,7 @@ const EditQuote = props => {
     console.log('Update values: ' + values);
     let data = {
       quoteText: values.text,
-      quoteType: values.type,
+      quoteType: JSON.stringify(selectedVals),
       quoteSource: values.source,
     };
     db.updateQuote(id, data)
@@ -69,6 +90,10 @@ const EditQuote = props => {
       });
   };
 
+  const onMultiChange = () => {
+    return item => setSelectedVals(xorBy(selectedVals, [item], 'id'));
+  };
+
   return (
     <View style={styles.formInputContainer}>
       <Formik
@@ -93,14 +118,19 @@ const EditQuote = props => {
             />
             <Field
               component={CustomTextInput}
-              name="type"
-              style={styles.textInput}
-            />
-            <Field
-              component={CustomTextInput}
               name="source"
               style={styles.textInput}
             />
+            <View style={styles.textInput}>
+              <SelectBox
+                label="Select tags"
+                options={groups}
+                selectedValues={selectedVals}
+                onMultiSelect={onMultiChange()}
+                onTapClose={onMultiChange()}
+                isMulti
+              />
+            </View>
             <View style={styles.saveButton}>
               <Button
                 title="Save"
