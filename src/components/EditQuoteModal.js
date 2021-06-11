@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, Text} from 'react-native';
 import {Button} from 'react-native-elements';
 import Database from '../../Database';
 import {Formik, Field} from 'formik';
@@ -121,7 +121,7 @@ const EditQuote = props => {
               name="source"
               style={styles.textInput}
             />
-            <View style={styles.textInput}>
+            <View style={styles.quoteSelect}>
               <SelectBox
                 label="Select tags"
                 options={groups}
@@ -131,34 +131,32 @@ const EditQuote = props => {
                 isMulti
               />
             </View>
-            <View style={styles.saveButton}>
-              <Button
-                title="Save"
-                onPress={handleSubmit}
-                // disabled={!isValid}
-              />
-            </View>
-            <View style={styles.saveButton}>
-              <Button
-                style={styles.button}
-                large
-                title="Delete"
-                onPress={() => {
-                  deleteQuote(id);
-                  props.closeDisplay();
-                }}
-              />
-            </View>
-            <View style={styles.saveButton}>
-              <Button
-                style={styles.button}
-                large
-                title="Close"
-                onPress={() => {
-                  props.closeDisplay();
-                }}
-              />
-            </View>
+            <TouchableOpacity
+              style={styles.formButton}
+              large
+              title="Close"
+              onPress={() => {
+                props.closeDisplay();
+              }}>
+              <Text style={styles.formButtonText}>Close</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.formButton}
+              large
+              title="Save"
+              onPress={handleSubmit}>
+              <Text style={styles.formButtonText}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.formButton}
+              large
+              title="Delete"
+              onPress={() => {
+                deleteQuote(id);
+                props.closeDisplay();
+              }}>
+              <Text style={styles.formButtonText}>Delete</Text>
+            </TouchableOpacity>
           </View>
         )}
       </Formik>
@@ -173,9 +171,16 @@ const styles = StyleSheet.create({
     elevation: 20,
     backgroundColor: '#e6e6e6',
   },
-  saveButton: {
-    width: '95%',
-    padding: 5,
+  formButton: {
+    alignItems: 'center',
+    backgroundColor: '#36ced4',
+    padding: 15,
+    margin: 5,
+    width: '91%',
+    borderRadius: 70,
+  },
+  formButtonText: {
+    color: 'white',
   },
   buttonContainer: {
     // flex: 1,
@@ -195,6 +200,17 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 10,
     color: 'red',
+  },
+  quoteSelect: {
+    fontSize: 14,
+    backgroundColor: 'white',
+    color: 'black',
+    margin: 10,
+    padding: 5,
+    width: '90%',
+    borderColor: 'gray',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 15,
   },
 });
 

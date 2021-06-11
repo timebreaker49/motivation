@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {View, StyleSheet, Modal} from 'react-native';
-import {Button} from 'react-native-elements';
+import {View, StyleSheet, Modal, TouchableOpacity, Text} from 'react-native';
 import AddQuoteModal from './AddQuoteModal';
 
 const AddQuote = props => {
@@ -17,7 +16,15 @@ const AddQuote = props => {
 
   return (
     <View>
-      <Button style={styles.button} onPress={toggleModal} title="Add Quote" />
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.formButton}
+          large
+          title="Add Quote"
+          onPress={toggleModal}>
+          <Text style={styles.formButtonText}>Add Quote</Text>
+        </TouchableOpacity>
+      </View>
       {modalVisible ? (
         <Modal animationType="slide" onRequestClose={closeDisplay}>
           <View style={styles.formBox}>
@@ -39,6 +46,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 100,
+  },
+  formButton: {
+    alignItems: 'center',
+    backgroundColor: '#36ced4',
+    padding: 15,
+    margin: 10,
+    width: 390,
+    borderRadius: 70,
+  },
+  formButtonText: {
+    color: 'white',
   },
   closeButton: {
     padding: 20,

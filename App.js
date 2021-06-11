@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {SafeAreaView, View, StyleSheet, Text} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
 import AddQuote from './src/components/AddQuote';
 import QuotesList from './src/components/QuotesList';
 
@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    marginTop: 20,
+    backgroundColor: 'white',
   },
 });
 export default App;

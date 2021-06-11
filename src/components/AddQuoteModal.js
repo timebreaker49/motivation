@@ -122,6 +122,7 @@ const AddQuoteModal = props => {
             )}
             <View style={styles.textInput}>
               <SelectBox
+                style={styles.textInput}
                 label="Select tags"
                 options={groups}
                 selectedValues={selectedVals}
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
     borderRadius: 70,
   },
   formButtonText: {
-    color: 'black',
+    color: 'white',
   },
   buttonContainer: {
     // flex: 1,

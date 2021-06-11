@@ -47,6 +47,7 @@ const QuotesList = props => {
   };
   const renderItem = ({item}) => (
     <ListItem
+      containerStyle={styles.quoteList}
       title={item.quoteId}
       onPress={() => onPress(item.quoteId)}
       quoteId={item.quoteId}>
@@ -55,7 +56,7 @@ const QuotesList = props => {
   );
 
   return (
-    <View>
+    <View style={styles.quoteList}>
       {quotes.length < 1 ? (
         <View>
           <Text>{notFound}</Text>
@@ -87,6 +88,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 100,
+  },
+  quoteList: {
+    flex: 2,
+    backgroundColor: 'white',
   },
 });
 
