@@ -3,6 +3,7 @@ import {FlatList, Modal, StyleSheet, Text, View} from 'react-native';
 import {ListItem} from 'react-native-elements';
 import Database from '../../Database';
 import EditQuote from './EditQuoteModal';
+import AddQuote from './AddQuote';
 
 const QuotesList = props => {
   const [isLoading, setLoading] = useState(true);
@@ -13,6 +14,7 @@ const QuotesList = props => {
   ] = 'No quotes found!\nPlease tap add quote to add one!';
   const [visible, setVisible] = useState(false);
   const [id, setId] = useState('');
+  const [refresh, setRefresh] = useState(false);
 
   const onPress = quoteId => {
     setVisible(true);
@@ -27,7 +29,7 @@ const QuotesList = props => {
   useEffect(() => {
     console.log('props refresh in QL: ' + props.refresh);
     getQuotes();
-  }, [props.refresh]);
+  }, [refresh]);
 
   const getQuotes = () => {
     db.listQuotes()
@@ -57,6 +59,7 @@ const QuotesList = props => {
 
   return (
     <View style={styles.quoteList}>
+      <AddQuote refresh={refresh} setRefresh={setRefresh} />
       {quotes.length < 1 ? (
         <View>
           <Text>{notFound}</Text>

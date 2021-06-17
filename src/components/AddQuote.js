@@ -24,6 +24,13 @@ const AddQuote = props => {
           onPress={toggleModal}>
           <Text style={styles.formButtonText}>Add Quote</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.formButton}
+          large
+          title="Manage Quotes">
+          {/*onPress={() => navigation.navigate('ManageQuotes')*/}
+          <Text style={styles.formButtonText}>Manage Quotes</Text>
+        </TouchableOpacity>
       </View>
       {modalVisible ? (
         <Modal animationType="slide" onRequestClose={closeDisplay}>
@@ -42,6 +49,10 @@ const AddQuote = props => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'white',
+    flexDirection: 'row',
+  },
   formBox: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -52,7 +63,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#36ced4',
     padding: 15,
     margin: 10,
-    width: 390,
+    width: '45%',
     borderRadius: 70,
   },
   formButtonText: {
