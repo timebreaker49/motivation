@@ -1,8 +1,10 @@
 import React, {useState} from 'react';
 import {View, StyleSheet, Modal, TouchableOpacity, Text} from 'react-native';
 import AddQuoteModal from './AddQuoteModal';
+import {useNavigation} from '@react-navigation/native';
 
 const AddQuote = props => {
+  const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => {
@@ -27,9 +29,9 @@ const AddQuote = props => {
         <TouchableOpacity
           style={styles.formButton}
           large
-          title="Manage Quotes">
-          {/*onPress={() => navigation.navigate('ManageQuotes')*/}
-          <Text style={styles.formButtonText}>Manage Quotes</Text>
+          title="View Groups"
+          onPress={() => navigation.navigate('View Groups')}>
+          <Text style={styles.formButtonText}>View Groups</Text>
         </TouchableOpacity>
       </View>
       {modalVisible ? (
