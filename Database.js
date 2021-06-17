@@ -3,6 +3,7 @@ SQLite.DEBUG(true);
 SQLite.enablePromise(true);
 
 export default class Database {
+  // DB calls to create and close connection
   initDB() {
     let db;
     return new Promise(resolve => {
@@ -46,82 +47,6 @@ export default class Database {
         });
     });
   }
-
-  // new call for retrieve quote groups
-  getQuoteGroups() {
-    return new Promise(resolve => {
-      const groups = [];
-      this.initDB()
-        .then(db => {
-          db.transaction(tx => {
-            tx.executeSql(
-              'SELECT qg.groupId, qg.groupName FROM QuoteGroup qg',
-              [],
-            ).then(([tx, results]) => {
-              console.log('SQL executed');
-              for (let i = 0; i < results.rows.length; i++) {
-                let row = results.rows.item(i);
-                console.log(
-                  'groupId: ' + row.groupId + ' , groupName: ' + row.groupName,
-                );
-                const {groupId, groupName} = row;
-                groups.push({groupId, groupName});
-              }
-              resolve(groups);
-            });
-          })
-            .then(() => this.closeDatabase(db))
-            .catch(error => {
-              console.log('Error with quote group' + error);
-            });
-        })
-        .catch(error => {
-          console.log('Error! ' + error);
-        });
-    });
-  }
-
-  getQuoteGroupByName(name) {
-    return new Promise(resolve => {
-      const group = [];
-      this.initDB().then(db => {
-        db.transaction(tx => {
-          tx.executeSql('SELECT * FROM Quote WHERE quoteType LIKE ?', [
-            '%' + name + '%',
-          ])
-            .then(([tx, results]) => {
-              for (let i = 0; i < results.rows.length; i++) {
-                let row = results.rows.item(i);
-                const {quoteId, quoteText, quoteType, quoteSource} = row;
-                group.push({quoteId, quoteText, quoteType, quoteSource});
-              }
-              console.log(
-                'Retrieved ' +
-                  group.length +
-                  ' quotes with the ' +
-                  name +
-                  '  group.',
-              );
-              resolve(group);
-            })
-            .then(result => {
-              this.closeDatabase(db);
-            })
-            .catch(function (error) {
-              console.log(
-                'Problem retrieving quote group by name',
-                error.message,
-              );
-              throw error;
-            })
-            .catch(error => {
-              console.log('Error! ', error.message);
-            });
-        });
-      });
-    });
-  }
-
   closeDatabase(db) {
     if (db) {
       console.log('Closing database');
@@ -136,6 +61,7 @@ export default class Database {
       console.log('Database was not OPENED');
     }
   }
+  // DB calls for particular quotes
   listQuotes() {
     return new Promise(resolve => {
       const quotes = [];
@@ -275,6 +201,79 @@ export default class Database {
         .catch(error => {
           console.log('Error, ', error);
         });
+    });
+  }
+  // DB calls for quote groups
+  getQuoteGroups() {
+    return new Promise(resolve => {
+      const groups = [];
+      this.initDB()
+        .then(db => {
+          db.transaction(tx => {
+            tx.executeSql(
+              'SELECT qg.groupId, qg.groupName FROM QuoteGroup qg',
+              [],
+            ).then(([tx, results]) => {
+              console.log('SQL executed');
+              for (let i = 0; i < results.rows.length; i++) {
+                let row = results.rows.item(i);
+                console.log(
+                  'groupId: ' + row.groupId + ' , groupName: ' + row.groupName,
+                );
+                const {groupId, groupName} = row;
+                groups.push({groupId, groupName});
+              }
+              resolve(groups);
+            });
+          })
+            .then(() => this.closeDatabase(db))
+            .catch(error => {
+              console.log('Error with quote group' + error);
+            });
+        })
+        .catch(error => {
+          console.log('Error! ' + error);
+        });
+    });
+  }
+  getQuoteGroupByName(name) {
+    return new Promise(resolve => {
+      const group = [];
+      this.initDB().then(db => {
+        db.transaction(tx => {
+          tx.executeSql('SELECT * FROM Quote WHERE quoteType LIKE ?', [
+            '%' + name + '%',
+          ])
+            .then(([tx, results]) => {
+              for (let i = 0; i < results.rows.length; i++) {
+                let row = results.rows.item(i);
+                const {quoteId, quoteText, quoteType, quoteSource} = row;
+                group.push({quoteId, quoteText, quoteType, quoteSource});
+              }
+              console.log(
+                'Retrieved ' +
+                  group.length +
+                  ' quotes with the ' +
+                  name +
+                  '  group.',
+              );
+              resolve(group);
+            })
+            .then(result => {
+              this.closeDatabase(db);
+            })
+            .catch(function (error) {
+              console.log(
+                'Problem retrieving quote group by name',
+                error.message,
+              );
+              throw error;
+            })
+            .catch(error => {
+              console.log('Error! ', error.message);
+            });
+        });
+      });
     });
   }
 }
