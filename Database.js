@@ -81,6 +81,47 @@ export default class Database {
     });
   }
 
+  getQuoteGroupByName(name) {
+    return new Promise(resolve => {
+      const group = [];
+      this.initDB().then(db => {
+        db.transaction(tx => {
+          tx.executeSql('SELECT * FROM Quote WHERE quoteType LIKE ?', [
+            '%' + name + '%',
+          ])
+            .then(([tx, results]) => {
+              for (let i = 0; i < results.rows.length; i++) {
+                let row = results.rows.item(i);
+                const {quoteId, quoteText, quoteType, quoteSource} = row;
+                group.push({quoteId, quoteText, quoteType, quoteSource});
+              }
+              console.log(
+                'Retrieved ' +
+                  group.length +
+                  ' quotes with the ' +
+                  name +
+                  '  group.',
+              );
+              resolve(group);
+            })
+            .then(result => {
+              this.closeDatabase(db);
+            })
+            .catch(function (error) {
+              console.log(
+                'Problem retrieving quote group by name',
+                error.message,
+              );
+              throw error;
+            })
+            .catch(error => {
+              console.log('Error! ', error.message);
+            });
+        });
+      });
+    });
+  }
+
   closeDatabase(db) {
     if (db) {
       console.log('Closing database');
