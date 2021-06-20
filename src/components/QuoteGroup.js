@@ -1,18 +1,21 @@
 import React, {useEffect, useState} from 'react';
 import Database from '../../Database';
-import {Text, View, StyleSheet, FlatList} from 'react-native';
+import {View, StyleSheet, FlatList} from 'react-native';
 import {ListItem} from 'react-native-elements';
+import SelectBox from 'react-native-multi-selectbox';
+import {isEmpty} from 'lodash';
 
 const db = new Database();
 
 const QuoteGroup = () => {
-  // default collection?
-  const [group, setGroup] = useState([]);
+  const [group, setGroup] = useState([]); // quote group displayed after user selection
+  const [selectedGroup, setSelectedGroup] = useState({}); // quote group selected
+  const [groupNames, setGroupNames] = useState([]); // all quote group name options
 
   useEffect(() => {
     let isMounted = true;
-    console.log('welp');
-    getQuoteGroupByName('motivation').then(data => {
+    let groupName = isEmpty(selectedGroup) ? 'motivation' : selectedGroup.item; // needs a string, not an object
+    getQuoteGroupByName(groupName).then(data => {
       if (isMounted) {
         setGroup(data);
       }
@@ -20,10 +23,37 @@ const QuoteGroup = () => {
     return () => {
       isMounted = false;
     };
-  }, [group]);
+  }, [selectedGroup]);
 
-  const getQuoteGroupByName = groupString => {
-    return db.getQuoteGroupByName(groupString);
+  useEffect(() => {
+    let isMounted = true;
+    getQuoteGroups()
+      .then(data => {
+        if (isMounted) {
+          let quoteGroup = [];
+          Object.keys(data).forEach(key => {
+            quoteGroup.push({
+              item: data[key].groupName,
+              id: data[key].groupId,
+            });
+          });
+          setGroupNames(quoteGroup);
+        }
+      })
+      .then(error => {
+        console.log('getQuoteGroups error ' + error);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const getQuoteGroupByName = groupName => {
+    return db.getQuoteGroupByName(groupName);
+  };
+
+  const getQuoteGroups = () => {
+    return db.getQuoteGroups();
   };
 
   const keyExtractor = (item, index) => {
@@ -38,9 +68,21 @@ const QuoteGroup = () => {
     </ListItem>
   );
 
+  function onChange() {
+    return val => setSelectedGroup(val);
+  }
+
   return (
     <View style={styles.quoteList}>
-      <Text>Here is where quote groups will be displayed!!</Text>
+      <View style={styles.textInput}>
+        <SelectBox
+          label="Select quote group"
+          options={groupNames}
+          value={selectedGroup}
+          onChange={onChange()}
+          hideInputFilter={false}
+        />
+      </View>
       <FlatList
         keyExtractor={keyExtractor}
         data={group}
@@ -49,11 +91,21 @@ const QuoteGroup = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   quoteList: {
     flex: 2,
     backgroundColor: 'white',
+  },
+  textInput: {
+    fontSize: 14,
+    width: '95%',
+    backgroundColor: 'white',
+    color: 'black',
+    margin: 10,
+    padding: 10,
+    borderColor: 'gray',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 15,
   },
 });
 
