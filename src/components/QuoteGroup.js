@@ -87,8 +87,11 @@ const QuoteGroup = () => {
         <TouchableOpacity
           style={styles.formButton}
           large
-          title="Manage Quote Groups">
-          <Text style={styles.formButtonText}>Manage Quote Groups</Text>
+          title="Manage Quote Groups"
+          onPress={() =>
+            navigation.navigate('Manage Quote Group', {groupNames})
+          }>
+          <Text style={styles.formButtonText}>Manage Quote Group</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.textInput}>

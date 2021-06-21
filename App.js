@@ -5,6 +5,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import QuotesList from './src/components/QuotesList';
 import QuoteGroup from './src/components/QuoteGroup';
+import ManageQuoteGroup from './src/components/ManageQuoteGroup';
 
 const App = () => {
   console.log('This debug is working!');
@@ -23,6 +24,7 @@ const App = () => {
         }}>
         <Stack.Screen name="Quote Groups" component={QuoteGroup} />
         <Stack.Screen name="Manage Quotes" component={QuotesList} />
+        <Stack.Screen name="Manage Quote Group" component={ManageQuoteGroup} />
       </Stack.Navigator>
     </NavigationContainer>
   );
