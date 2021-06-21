@@ -1,13 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import Database from '../../Database';
-import {View, StyleSheet, FlatList} from 'react-native';
+import {View, StyleSheet, FlatList, TouchableOpacity, Text} from 'react-native';
 import {ListItem} from 'react-native-elements';
 import SelectBox from 'react-native-multi-selectbox';
 import {isEmpty} from 'lodash';
+import {useNavigation} from '@react-navigation/native';
 
 const db = new Database();
 
 const QuoteGroup = () => {
+  const navigation = useNavigation();
   const [group, setGroup] = useState([]); // quote group displayed after user selection
   const [selectedGroup, setSelectedGroup] = useState({}); // quote group selected
   const [groupNames, setGroupNames] = useState([]); // all quote group name options
@@ -74,6 +76,21 @@ const QuoteGroup = () => {
 
   return (
     <View style={styles.quoteList}>
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.formButton}
+          large
+          title="Manage Quotes"
+          onPress={() => navigation.navigate('Manage Quotes')}>
+          <Text style={styles.formButtonText}>Manage Quotes</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.formButton}
+          large
+          title="Manage Quote Groups">
+          <Text style={styles.formButtonText}>Manage Quote Groups</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.textInput}>
         <SelectBox
           label="Select quote group"
@@ -92,6 +109,22 @@ const QuoteGroup = () => {
   );
 };
 const styles = StyleSheet.create({
+  container: {
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    flexDirection: 'row',
+  },
+  formButton: {
+    alignItems: 'center',
+    backgroundColor: '#36ced4',
+    padding: 15,
+    margin: 10,
+    width: '45%',
+    borderRadius: 70,
+  },
+  formButtonText: {
+    color: 'white',
+  },
   quoteList: {
     flex: 2,
     backgroundColor: 'white',

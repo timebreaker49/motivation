@@ -12,9 +12,17 @@ const App = () => {
 
   return (
     <NavigationContainer style={styles.container}>
-      <Stack.Navigator>
-        <Stack.Screen name="Quotes List" component={QuotesList} />
-        <Stack.Screen name="View Groups" component={QuoteGroup} />
+      <Stack.Navigator
+        screenOptions={{
+          headerTintColor: '#36ced4',
+          headerTitleAlign: 'center',
+          headerStyle: {
+            borderBottomColor: '#36ced4',
+            borderBottomWidth: 1,
+          },
+        }}>
+        <Stack.Screen name="Quote Groups" component={QuoteGroup} />
+        <Stack.Screen name="Manage Quotes" component={QuotesList} />
       </Stack.Navigator>
     </NavigationContainer>
   );

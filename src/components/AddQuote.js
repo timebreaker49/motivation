@@ -26,13 +26,6 @@ const AddQuote = props => {
           onPress={toggleModal}>
           <Text style={styles.formButtonText}>Add Quote</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.formButton}
-          large
-          title="View Groups"
-          onPress={() => navigation.navigate('View Groups')}>
-          <Text style={styles.formButtonText}>View Groups</Text>
-        </TouchableOpacity>
       </View>
       {modalVisible ? (
         <Modal animationType="slide" onRequestClose={closeDisplay}>
