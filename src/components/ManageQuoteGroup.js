@@ -9,19 +9,24 @@ import {
 } from 'react-native';
 import {ListItem} from 'react-native-elements';
 import AddQuoteGroupModal from './AddQuoteGroupModal';
+import EditQuoteGroupModal from './EditQuoteGroupModal';
 
 const ManageQuoteGroup = props => {
   const [groups, setGroups] = useState(props.route.params.groupNames);
   const [visible, setVisible] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
   const [id, setId] = useState('');
+  const [name, setName] = useState('');
 
-  const onPress = itemId => {
-    setVisible(!visible);
+  const onPress = (itemId, itemTitle) => {
+    setEditModalVisible(!visible);
     setId(itemId);
+    setName(itemTitle);
   };
 
   const closeModal = () => {
-    setVisible(!visible);
+    setVisible(false);
+    setEditModalVisible(false);
     // also need to refresh quote groups
   };
 
@@ -34,7 +39,7 @@ const ManageQuoteGroup = props => {
       containerStyle={styles.quoteList}
       title={item.item}
       id={item.id}
-      onPress={() => onPress()}>
+      onPress={() => onPress(item.id, item.item)}>
       <ListItem.Title>{item.item}</ListItem.Title>
     </ListItem>
   );
@@ -56,12 +61,16 @@ const ManageQuoteGroup = props => {
         renderItem={renderItem}
       />
       {visible ? (
-        <Modal
-          animationType="slide"
-          style={styles.modalStyle}
-          onRequestClose={() => closeModal()}>
+        <Modal animationType="slide" onRequestClose={() => closeModal()}>
           <View style={styles.formBox}>
             <AddQuoteGroupModal setVisible={setVisible} visible={visible} />
+          </View>
+        </Modal>
+      ) : null}
+      {editModalVisible ? (
+        <Modal animationType="fade" onRequestClose={() => closeModal()}>
+          <View style={styles.formBox}>
+            <EditQuoteGroupModal id={id} item={name} closeModal={closeModal} />
           </View>
         </Modal>
       ) : null}
