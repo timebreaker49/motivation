@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   View,
@@ -10,13 +10,44 @@ import {
 import {ListItem} from 'react-native-elements';
 import AddQuoteGroupModal from './AddQuoteGroupModal';
 import EditQuoteGroupModal from './EditQuoteGroupModal';
+import Database from '../../Database';
+
+const db = new Database();
 
 const ManageQuoteGroup = props => {
-  const [groups, setGroups] = useState(props.route.params.groupNames);
+  const [groups, setGroups] = useState([]);
   const [visible, setVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
+  const [refreshGroups, setRefreshGroups] = useState(false);
+
+  const getQuoteGroups = () => {
+    return db.getQuoteGroups();
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+    getQuoteGroups()
+      .then(data => {
+        if (isMounted) {
+          let quoteGroup = [];
+          Object.keys(data).forEach(key => {
+            quoteGroup.push({
+              item: data[key].groupName,
+              id: data[key].groupId,
+            });
+          });
+          setGroups(quoteGroup);
+        }
+      })
+      .then(error => {
+        console.log('getQuoteGroups error ' + error);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [refreshGroups]);
 
   const onPress = (itemId, itemTitle) => {
     setEditModalVisible(!visible);
@@ -27,7 +58,6 @@ const ManageQuoteGroup = props => {
   const closeModal = () => {
     setVisible(false);
     setEditModalVisible(false);
-    // also need to refresh quote groups
   };
 
   const keyExtractor = (item, index) => {
@@ -70,7 +100,13 @@ const ManageQuoteGroup = props => {
       {editModalVisible ? (
         <Modal animationType="fade" onRequestClose={() => closeModal()}>
           <View style={styles.formBox}>
-            <EditQuoteGroupModal id={id} item={name} closeModal={closeModal} />
+            <EditQuoteGroupModal
+              id={id}
+              item={name}
+              refreshGroups={refreshGroups}
+              setRefreshGroups={setRefreshGroups}
+              closeModal={closeModal}
+            />
           </View>
         </Modal>
       ) : null}

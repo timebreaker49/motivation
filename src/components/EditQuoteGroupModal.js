@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Database from '../../Database';
 import {Formik, Field} from 'formik';
@@ -9,9 +9,62 @@ const db = new Database();
 const EditQuoteGroupModal = props => {
   const [groupId, setGroupId] = useState(props.id);
   const [groupName, setGroupName] = useState(props.item);
+  const [updatedQuotes, setUpdatedQuotes] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    getQuoteTypesToUpdate()
+      .then(data => {
+        if (isMounted) {
+          setUpdatedQuotes(data);
+        }
+      })
+      .then(error => {
+        console.log(
+          'we ran into an error with getQuoteTypesToUpdate! : ' + error,
+        );
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const getQuoteTypesToUpdate = () => {
+    return db.getQuoteGroupByName(groupName);
+  };
+
+  const processQuoteTypeUpdates = (oldName, newName) => {
+    let quotes = [];
+    for (let i = 0; i < updatedQuotes.length; i++) {
+      let row = updatedQuotes[i];
+      let currentGroups = row.quoteType;
+      let start = currentGroups.search(oldName);
+      let end = start + oldName.length;
+      let firstHalf = currentGroups.slice(0, start);
+      let latterHalf = currentGroups.slice(end); // assuming will always have brackets at end
+      row.quoteType = firstHalf + newName + latterHalf;
+      const {quoteId, quoteText, quoteType, quoteSource} = row;
+      quotes.push({
+        quoteId,
+        quoteText,
+        quoteType,
+        quoteSource,
+      });
+    }
+    return quotes;
+  };
 
   const updateQuoteGroupName = values => {
-    console.log(values);
+    let hasChanged = values.name !== groupName;
+    if (hasChanged) {
+      db.updateQuoteGroupName(values.name, groupId).then(r => {
+        console.log('success ' + r);
+      });
+      let updates = processQuoteTypeUpdates(groupName, values.name);
+      db.updateQuoteTypes(updates).then(r => {
+        console.log('I hope this worked' + r);
+      });
+    }
   };
 
   return (
@@ -21,6 +74,8 @@ const EditQuoteGroupModal = props => {
         initialValues={{id: groupId, name: groupName}}
         onSubmit={values => {
           updateQuoteGroupName(values);
+          props.setRefreshGroups(!props.refreshGroups);
+          props.closeModal();
         }}>
         {({handleSubmit}) => (
           <View>
