@@ -179,42 +179,28 @@ export default class Database {
       });
     });
   }
-  // 2 cases: deletion -> removal, update -> update
-  updateQuotesQuoteGroup(oldName, newName) {
+  updateQuoteTypes(quotes) {
     return new Promise(resolve => {
-      this.initDB().then(db => {
-        db.transaction(trnx => {
-          trnx
-            .executeSql('SELECT * FROM Quote WHERE quoteType LIKE ?', [
-              '%' + oldName + '%',
-            ])
-            .then(([trnx, data]) => {
-              for (let i = 0; i < data.rows.length; i++) {
-                let row = data.rows.item(i);
-                let currentGroups = row.quoteType;
-                let start = currentGroups.search(oldName);
-                let end = start + oldName.length;
-                let firstHalf = currentGroups.slice(0, start - 1);
-                let latterHalf = currentGroups.slice(end); // assuming will always have brackets at end
-                row.quoteType = firstHalf + newName + latterHalf;
-                data
-                  .executeSql(
-                    'UPDATE Quote SET quoteType = ? WHERE quoteID = ?',
-                    [row.quoteType, row.id],
-                  )
-                  .catch(error => {
-                    console.log('Error: ', error);
-                  });
-              }
-            })
-            .then(results => {
-              resolve(results);
-            })
-            .catch(error => {
-              console.log('Error: ', error);
-            });
+      this.initDB()
+        .then(db => {
+          db.transaction(tx => {
+            for (let i = 0; i < quotes.length; i++) {
+              tx.executeSql(
+                'UPDATE Quote SET quoteType = ? WHERE quoteID = ?',
+                [quotes[i].quoteType, quotes[i].quoteId],
+              )
+                .then(results => {
+                  resolve(results);
+                })
+                .catch(error => {
+                  console.log('Error ' + error);
+                });
+            }
+          });
+        })
+        .catch(error => {
+          console.log('Error!: ' + error);
         });
-      });
     });
   }
   deleteQuote(id) {
@@ -272,6 +258,30 @@ export default class Database {
         .catch(error => {
           console.log('Error! ' + error);
         });
+    });
+  }
+  updateQuoteGroupName(newName, id) {
+    return new Promise(resolve => {
+      this.initDB().then(db => {
+        db.transaction(transaction => {
+          transaction
+            .executeSql(
+              'UPDATE QuoteGroup SET groupName = ? WHERE groupId = ?',
+              [newName, id],
+            )
+            .then(([tx, results]) => {
+              resolve(results);
+            })
+            .then(() => {
+              this.closeDatabase(db);
+            })
+            .catch(error => {
+              console.log('Error: ' + error);
+            });
+        }).catch(error => {
+          console.log('Error: ' + error);
+        });
+      });
     });
   }
   getQuoteGroupByName(name) {
