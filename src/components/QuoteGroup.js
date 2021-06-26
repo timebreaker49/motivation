@@ -3,29 +3,16 @@ import Database from '../../Database';
 import {View, StyleSheet, FlatList, TouchableOpacity, Text} from 'react-native';
 import {ListItem} from 'react-native-elements';
 import SelectBox from 'react-native-multi-selectbox';
-import {isEmpty} from 'lodash';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 
 const db = new Database();
 
 const QuoteGroup = () => {
   const navigation = useNavigation();
   const [group, setGroup] = useState([]); // quote group displayed after user selection
-  const [selectedGroup, setSelectedGroup] = useState({}); // quote group selected
+  const [selectedGroup, setSelectedGroup] = useState({item: '', id: ''}); // quote group selected
   const [groupNames, setGroupNames] = useState([]); // all quote group name options
-
-  useEffect(() => {
-    let isMounted = true;
-    let groupName = isEmpty(selectedGroup) ? 'motivation' : selectedGroup.item; // needs a string, not an object
-    getQuoteGroupByName(groupName).then(data => {
-      if (isMounted) {
-        setGroup(data);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedGroup]);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     let isMounted = true;
@@ -40,6 +27,9 @@ const QuoteGroup = () => {
             });
           });
           setGroupNames(quoteGroup);
+          if (quoteGroup.length > 0) {
+            setSelectedGroup(quoteGroup[0]);
+          }
         }
       })
       .then(error => {
@@ -48,7 +38,20 @@ const QuoteGroup = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isFocused]);
+
+  useEffect(() => {
+    let isMounted = true;
+    let groupName = selectedGroup.item; // needs a string, not an object
+    getQuoteGroupByName(groupName).then(data => {
+      if (isMounted) {
+        setGroup(data);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [isFocused, selectedGroup]);
 
   const getQuoteGroupByName = groupName => {
     return db.getQuoteGroupByName(groupName);
