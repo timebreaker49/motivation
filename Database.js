@@ -228,6 +228,25 @@ export default class Database {
     });
   }
   // DB calls for quote groups
+  addQuoteGroup(groupName) {
+    return new Promise(resolve => {
+      this.initDB()
+        .then(db => {
+          db.transaction(tx => {
+            tx.executeSql('INSERT INTO QuoteGroup VALUES (NULL, ?)', [
+              groupName,
+            ]).then(([tx, results]) => {
+              resolve(results);
+            });
+          }).then(() => {
+            this.closeDatabase(db);
+          });
+        })
+        .catch(error => {
+          console.log('Error!! : ' + error);
+        });
+    });
+  }
   getQuoteGroups() {
     return new Promise(resolve => {
       const groups = [];
@@ -258,30 +277,6 @@ export default class Database {
         .catch(error => {
           console.log('Error! ' + error);
         });
-    });
-  }
-  updateQuoteGroupName(newName, id) {
-    return new Promise(resolve => {
-      this.initDB().then(db => {
-        db.transaction(transaction => {
-          transaction
-            .executeSql(
-              'UPDATE QuoteGroup SET groupName = ? WHERE groupId = ?',
-              [newName, id],
-            )
-            .then(([tx, results]) => {
-              resolve(results);
-            })
-            .then(() => {
-              this.closeDatabase(db);
-            })
-            .catch(error => {
-              console.log('Error: ' + error);
-            });
-        }).catch(error => {
-          console.log('Error: ' + error);
-        });
-      });
     });
   }
   getQuoteGroupByName(name) {
@@ -320,6 +315,30 @@ export default class Database {
             .catch(error => {
               console.log('Error! ', error.message);
             });
+        });
+      });
+    });
+  }
+  updateQuoteGroupName(newName, id) {
+    return new Promise(resolve => {
+      this.initDB().then(db => {
+        db.transaction(transaction => {
+          transaction
+            .executeSql(
+              'UPDATE QuoteGroup SET groupName = ? WHERE groupId = ?',
+              [newName, id],
+            )
+            .then(([tx, results]) => {
+              resolve(results);
+            })
+            .then(() => {
+              this.closeDatabase(db);
+            })
+            .catch(error => {
+              console.log('Error: ' + error);
+            });
+        }).catch(error => {
+          console.log('Error: ' + error);
         });
       });
     });

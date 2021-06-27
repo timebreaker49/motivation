@@ -7,19 +7,35 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Formik} from 'formik';
+import Database from '../../Database';
+
+const db = new Database();
 
 const AddQuoteGroupModal = props => {
+  const addQuoteGroup = quoteGroup => {
+    console.log('quoteGroup to be added: ' + quoteGroup);
+    db.addQuoteGroup(quoteGroup)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        console.log('Error in adding quote group: ' + error);
+      });
+  };
+
   return (
     <View style={styles.formInputContainer}>
       <Formik
         initialValues={{name: ''}}
         onSubmit={values => {
-          console.log(values);
+          addQuoteGroup(values.name);
+          props.setRefreshGroups(!props.refreshGroups);
+          props.closeModal();
         }}>
         {({
           handleChange,
           handleBlur,
-          // handleSubmit,
+          handleSubmit,
           values,
           // errors,
           // touched,
@@ -34,13 +50,20 @@ const AddQuoteGroupModal = props => {
               onChangeText={handleChange('name')}
               onBlur={handleBlur('name')}
             />
-            <View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.formButton}
+                large
+                title="Save"
+                onPress={handleSubmit}>
+                <Text style={styles.formButtonText}>Save</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.formButton}
                 large
                 title="Close"
                 onPress={() => {
-                  props.setVisible(!props.visible);
+                  props.closeModal();
                 }}>
                 <Text style={styles.formButtonText}>Close</Text>
               </TouchableOpacity>
@@ -53,6 +76,10 @@ const AddQuoteGroupModal = props => {
 };
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
   },
@@ -61,7 +88,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#36ced4',
     padding: 15,
     margin: 10,
-    width: '95%',
+    width: '45%',
     borderRadius: 70,
   },
   formInputContainer: {
