@@ -71,7 +71,7 @@ const EditQuoteGroupModal = props => {
   };
 
   const handleQuoteGroupDeletion = id => {
-    // deleteQuoteGroup(id);
+    deleteQuoteGroup(id);
     let deletions = processQuoteTypeUpdates(groupName, '', false);
     db.updateQuoteTypes(deletions).then(r => {
       console.log('Deleted quote group: ' + r);
@@ -83,7 +83,7 @@ const EditQuoteGroupModal = props => {
       .then(result => {
         console.log('deleted quote group at id: ' + id + ', ' + result);
       })
-      .error(error => {
+      .catch(error => {
         console.log('error deleting quote group: ' + error);
       });
   };
@@ -127,6 +127,7 @@ const EditQuoteGroupModal = props => {
               title="Delete"
               onPress={() => {
                 handleQuoteGroupDeletion(groupId);
+                props.setRefreshGroups(!props.refreshGroups);
                 props.closeModal();
               }}>
               <Text style={styles.formButtonText}>Delete</Text>

@@ -324,4 +324,26 @@ export default class Database {
       });
     });
   }
+  deleteQuoteGroup(id) {
+    return new Promise(resolve => {
+      this.initDB()
+        .then(db => {
+          db.transaction(tx => {
+            tx.executeSql('DELETE FROM QuoteGroup WHERE groupId = ?', [
+              id,
+            ]).then(([tx, results]) => {
+              console.log(results);
+              resolve(results);
+            });
+          })
+            .then(() => this.closeDatabase(db))
+            .catch(error => {
+              console.log('Exception in db transaction: ' + error);
+            });
+        })
+        .catch(error => {
+          console.log('Error in db: ' + error);
+        });
+    });
+  }
 }
