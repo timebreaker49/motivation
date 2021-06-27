@@ -14,7 +14,7 @@ import Database from '../../Database';
 
 const db = new Database();
 
-const ManageQuoteGroup = props => {
+const ManageQuoteGroup = () => {
   const [groups, setGroups] = useState([]);
   const [visible, setVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);

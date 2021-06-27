@@ -33,16 +33,19 @@ const EditQuoteGroupModal = props => {
     return db.getQuoteGroupByName(groupName);
   };
 
-  const processQuoteTypeUpdates = (oldName, newName) => {
+  const processQuoteTypeUpdates = (oldName, newName, isUpdate) => {
     let quotes = [];
     for (let i = 0; i < updatedQuotes.length; i++) {
       let row = updatedQuotes[i];
-      let currentGroups = row.quoteType;
-      let start = currentGroups.search(oldName);
-      let end = start + oldName.length;
-      let firstHalf = currentGroups.slice(0, start);
-      let latterHalf = currentGroups.slice(end); // assuming will always have brackets at end
-      row.quoteType = firstHalf + newName + latterHalf;
+      let parsedObj = JSON.parse(row.quoteType);
+      let index = parsedObj.findIndex(x => x.item === oldName);
+      if (isUpdate) {
+        parsedObj[index].item = newName;
+      } else {
+        // deleting quote group from quoteType
+        parsedObj.splice(index, 1);
+      }
+      row.quoteType = JSON.stringify(parsedObj);
       const {quoteId, quoteText, quoteType, quoteSource} = row;
       quotes.push({
         quoteId,
@@ -60,11 +63,29 @@ const EditQuoteGroupModal = props => {
       db.updateQuoteGroupName(values.name, groupId).then(r => {
         console.log('success ' + r);
       });
-      let updates = processQuoteTypeUpdates(groupName, values.name);
+      let updates = processQuoteTypeUpdates(groupName, values.name, true);
       db.updateQuoteTypes(updates).then(r => {
-        console.log('I hope this worked' + r);
+        console.log('Processed quote group updates: ' + r);
       });
     }
+  };
+
+  const handleQuoteGroupDeletion = id => {
+    // deleteQuoteGroup(id);
+    let deletions = processQuoteTypeUpdates(groupName, '', false);
+    db.updateQuoteTypes(deletions).then(r => {
+      console.log('Deleted quote group: ' + r);
+    });
+  };
+
+  const deleteQuoteGroup = id => {
+    db.deleteQuoteGroup(id)
+      .then(result => {
+        console.log('deleted quote group at id: ' + id + ', ' + result);
+      })
+      .error(error => {
+        console.log('error deleting quote group: ' + error);
+      });
   };
 
   return (
@@ -105,6 +126,7 @@ const EditQuoteGroupModal = props => {
               large
               title="Delete"
               onPress={() => {
+                handleQuoteGroupDeletion(groupId);
                 props.closeModal();
               }}>
               <Text style={styles.formButtonText}>Delete</Text>
