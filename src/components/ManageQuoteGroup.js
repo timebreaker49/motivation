@@ -93,7 +93,11 @@ const ManageQuoteGroup = () => {
       {visible ? (
         <Modal animationType="slide" onRequestClose={() => closeModal()}>
           <View style={styles.formBox}>
-            <AddQuoteGroupModal setVisible={setVisible} visible={visible} />
+            <AddQuoteGroupModal
+              refreshGroups={refreshGroups}
+              setRefreshGroups={setRefreshGroups}
+              closeModal={closeModal}
+            />
           </View>
         </Modal>
       ) : null}

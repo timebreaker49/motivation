@@ -152,6 +152,25 @@ export default class Database {
       });
     });
   }
+  addQuoteGroup(groupName) {
+    return new Promise(resolve => {
+      this.initDB()
+        .then(db => {
+          db.transaction(tx => {
+            tx.executeSql('INSERT INTO QuoteGroup VALUES (NULL, ?, NULL)', [
+              groupName,
+            ]).then(([tx, results]) => {
+              resolve(results);
+            });
+          }).then(() => {
+            this.closeDatabase(db);
+          });
+        })
+        .catch(error => {
+          console.log('Error!! : ' + error);
+        });
+    });
+  }
   updateQuote(id, quote) {
     console.log('id: ' + id);
     console.log('quote text from update: ' + quote.quoteText);
